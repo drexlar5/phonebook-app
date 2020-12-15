@@ -40,7 +40,7 @@ exports.createUser = async ({email, password}) => {
         return 'User created.';
       
     } catch (error) {
-      logger.error("Services::createUser::error", error.message);
+      logger.error("Service::createUser::error", error.message);
       throw error;
     }
   };
@@ -89,7 +89,7 @@ exports.authenticateUser = async ({email, password}) => {
         return token;
       
     } catch (error) {
-      logger.error("Services::authenticateUser::error", error.message);
+      logger.error("Service::authenticateUser::error", error.message);
       throw error;
     }
   };

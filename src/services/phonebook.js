@@ -40,7 +40,7 @@ exports.addPhoneBook = async (data, userId) => {
 
     return response;
   } catch (error) {
-    logger.error("addPhoneBook::error", error.message);
+    logger.error("Service::addPhoneBook::error", error.message);
     throw error;
   }
 };
@@ -58,6 +58,7 @@ exports.updatePhoneBook = async (data, id) => {
     })
       .select("-__v")
       .populate({ path: "phone_numbers", select: "tag number" });
+
     if (!phoneBook) {
       let error = new Error("Phonebook not found.");
       error.statusCode = 404;
@@ -87,9 +88,6 @@ exports.updatePhoneBook = async (data, id) => {
               },
               {
                 number: curr.number,
-              },
-              {
-                new: true,
               }
             );
             return;
@@ -111,10 +109,7 @@ exports.updatePhoneBook = async (data, id) => {
       {
         _id: mongoose.Types.ObjectId(id),
       },
-      data,
-      {
-        new: true,
-      }
+      data
     );
 
     updatedPhoneNumbers && phoneBook.phone_numbers.push(updatedPhoneNumbers);
@@ -129,7 +124,85 @@ exports.updatePhoneBook = async (data, id) => {
 
     return "Phonebook updated succesfully.";
   } catch (error) {
-    logger.error("updatePhoneBook::error", error.message);
+    logger.error("Service::updatePhoneBook::error", error.message);
+    throw error;
+  }
+};
+
+/**
+ * Fetches aray of phonebooks from the database
+ * @param perPage - String
+ * @param page - String
+ * @param sort - String
+ * @param userId - String
+ * @returns Object
+ */
+exports.getPhoneBook = async ({ perPage, page, sort }, userId) => {
+  try {
+    const currentPage = parseInt(page, 10) || 1;
+    const contactsPerPage = parseInt(perPage, 10) || 10;
+
+    const totalData = await PhoneBook.countDocuments({
+      user: mongoose.Types.ObjectId(userId),
+    });
+
+    const Phonebooks = await PhoneBook.find({
+      user: mongoose.Types.ObjectId(userId),
+    })
+      .select("-__v")
+      .populate({ path: "phone_numbers", select: "tag number" })
+      .skip((currentPage - 1) * contactsPerPage)
+      .limit(contactsPerPage)
+      .sort({ name: sort });
+
+    return {
+      currentPage,
+      pages: Math.ceil(totalData / perPage),
+      totalData,
+      phoneBooks: Phonebooks,
+    };
+  } catch (error) {
+    logger.error("Service::getPhoneBook::error", error.message);
+    throw error;
+  }
+};
+
+/**
+ * Deletes a phonebook record from the database
+ * @param id - String
+ * @returns String
+ */
+exports.deletePhoneBook = async (id) => {
+  try {
+    const phonebook = await PhoneBook.findOne({
+      _id: mongoose.Types.ObjectId(id),
+    });
+
+    if (!phonebook) {
+      let error = new Error("Phonebook not found.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    for (let id of phonebook.phone_numbers) {
+      await PhoneNumber.deleteOne({
+        _id: mongoose.Types.ObjectId(id),
+      });
+    }
+
+    const response = await PhoneBook.deleteOne({
+      _id: mongoose.Types.ObjectId(id),
+    });
+
+    if (response.deletedCount === 0) {
+      let error = new Error("Phonebook not deleted.");
+      error.statusCode = 500;
+      throw error;
+    }
+
+    return "Phonebook deleted.";
+  } catch (error) {
+    logger.error("Service::deletePhoneBook::error", error.message);
     throw error;
   }
 };
