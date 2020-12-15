@@ -5,6 +5,7 @@ const mongoConn = require('./src/config/connection');
 const logger = require('./src/lib/logger');
 
 const authRoute = require('./src/routes/auth');
+const phonebookRoute = require('./src/routes/phonebook');
 
 const app = express();
 
@@ -18,15 +19,16 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use(bodyParser.json());
 
+// Routes
 app.use('/api/v1', authRoute);
+app.use('/api/v1', phonebookRoute);
 
-app.use('/', (req, res, next) => res.status(404).json({ error: true, message: 'Not found.' }));
+app.use('*', (_req, res, _next) => res.status(404).json({ error: true, message: 'Route not found.' }));
 
 // Global error handler
-app.use((error, req, res, next) => {
+app.use((error, _req, res, _next) => {
 
   const status = error.statusCode || 500;
   const message = error.message;
