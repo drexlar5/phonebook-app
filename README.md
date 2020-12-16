@@ -234,6 +234,45 @@ yarn test
     }
 }
 ```
+### Fetch Phonebook By ID
+
+**Endpoint** `http://localhost:3001/api/v1/phonebook/fetch/:id` - method (GET)
+
+- Fetches a phonebook by id from the database
+
+**Authorization: Bearer <jwt-token>**
+
+**Response format**
+```json
+{
+    "error": false,
+    "message": "Phonebook Fetched Successfully.",
+    "data": {
+        "phone_numbers": [
+            {
+                "_id": "5fd95100ed74c34dbb361312",
+                "tag": "mobile",
+                "number": "34567890"
+            },
+            {
+                "_id": "5fd95100ed74c34dbb361313",
+                "tag": "home",
+                "number": "45678901"
+            },
+            {
+                "_id": "5fd95100ed74c34dbb361314",
+                "tag": "work",
+                "number": "56789012"
+            }
+        ],
+        "_id": "5fd95100ed74c34dbb361315",
+        "user": "5fd950aeed74c34dbb361311",
+        "name": "john doe",
+        "email": "johndoe@gmail.com",
+        "mailing_address": "Qubec, Canada."
+    }
+}
+```
 
 ### Delete Phonebook
 

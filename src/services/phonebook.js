@@ -168,6 +168,28 @@ exports.getPhoneBook = async ({ perPage, page, sort }, userId) => {
 };
 
 /**
+ * Fetches a phonebook by id from the database
+ * @param id - String
+ * @returns Object
+ */
+exports.getPhoneBookById = async (userId, id) => {
+  try {
+
+    const phoneBook = await PhoneBook.findOne({
+      _id: mongoose.Types.ObjectId(id),
+      user: mongoose.Types.ObjectId(userId),
+    })
+      .select("-__v")
+      .populate({ path: "phone_numbers", select: "tag number" });
+
+    return phoneBook;
+  } catch (error) {
+    logger.error("Service::getPhoneBookById::error", error.message);
+    throw error;
+  }
+};
+
+/**
  * Deletes a phonebook record from the database
  * @param id - String
  * @returns String

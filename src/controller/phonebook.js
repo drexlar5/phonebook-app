@@ -74,6 +74,26 @@ exports.getPhoneBook = async (req, res, next) => {
   }
 };
 
+exports.getPhoneBookById = async (req, res, next) => {
+  try {
+    const { userId, params } = req;
+    const { id } = params;
+
+    const result = await phoneBookService.getPhoneBookById( userId, id );
+
+    res.json({
+      error: false,
+      message: "Phonebook Fetched Successfully.",
+      data: result,
+    });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
+
 exports.deletePhoneBook = async (req, res, next) => {
   try {
     const { id } = req.params;
