@@ -47,4 +47,4 @@ mongoConn.connection()
 .then(() => {
  app.listen(port, () => logger.info(`server connected at port: ${port}`));
 })
-.catch(err => console.log('connection error', err));
+.catch(err => logger.error('connection error', err));
